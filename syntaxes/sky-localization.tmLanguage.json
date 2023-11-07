@@ -1,0 +1,28 @@
+{
+    "name": "Sky Localization",
+    "scopeName": "source.sky-localization",
+    "patterns": [
+        {
+            "match": "\\/\\*.*\\*\\/",
+            "name": "comment.sky-localization"
+        },
+        {
+            "match": "\"[a-zA-Z_0-9]+\"(?= =)",
+            "name": "keyword.other.sky-localization"
+        },
+        {
+            "match": "(?<== )\".*\"",
+            "name": "string.sky-localization",
+            "patterns": [
+                {
+                    "match": "{{[1-9]}}",
+                    "name": "constant.numeric.sky-localization"
+                }
+            ]
+        },
+        {
+            "match": "=",
+            "name": "keyword.operator.sky-localization"
+        }
+    ]
+}
