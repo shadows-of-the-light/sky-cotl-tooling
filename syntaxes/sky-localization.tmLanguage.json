@@ -11,12 +11,17 @@
             "name": "keyword.other.sky-localization"
         },
         {
-            "match": "(?<== )\".*\"",
+            "begin": "(?<== )\"",
+            "end": "\"",
             "name": "string.sky-localization",
             "patterns": [
                 {
-                    "match": "{{[1-9]}}",
-                    "name": "constant.numeric.sky-localization"
+                    "match": "{{\\d+}}",
+                    "name": "variable.other.sky-localization"
+                },
+                {
+                    "match": "<.+?>",
+                    "name": "keyword.other.sky-localization"
                 }
             ]
         },
