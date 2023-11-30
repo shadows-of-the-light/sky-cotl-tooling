@@ -53,10 +53,10 @@ function alighValues(document: vscode.TextDocument) {
     // "key3_something" = "value4";
     // "key4" =           "value5";
     const lines = document.getText().split('\n');
-    const maxKeyLength = Math.max(...lines.map((line) => line.indexOf('=')));
+    const maxKeyLength = Math.max(...lines.map((line) => line.indexOf(' =')));
     const ranges: vscode.Range[] = [];
     lines.forEach((line, index) => {
-        const indexOfValue = line.indexOf('=');
+        const indexOfValue = line.indexOf(' =');
         if (indexOfValue !== -1) {
             const spaceToAdd = maxKeyLength - indexOfValue;
             for (let i = 0; i < spaceToAdd; i++) {
