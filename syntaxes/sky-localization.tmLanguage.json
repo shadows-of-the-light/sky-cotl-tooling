@@ -12,7 +12,7 @@
         },
         {
             "begin": "(?<== )\"",
-            "end": "\"",
+            "end": "\"(?=;)",
             "name": "string.sky-localization",
             "patterns": [
                 {
@@ -21,6 +21,10 @@
                 },
                 {
                     "match": "<.+?>",
+                    "name": "keyword.other.sky-localization"
+                },
+                {
+                    "match": "\\\\n",
                     "name": "keyword.other.sky-localization"
                 }
             ]

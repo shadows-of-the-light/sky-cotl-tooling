@@ -1,8 +1,8 @@
 {
   "name": "sky-cotl-tooling",
   "displayName": "SkyTooling",
-  "description": "VSCode support for Sky: Children of the Light mod development",
-  "version": "0.0.1",
+  "description": "VSCode support for Sky: Children of the Light files",
+  "version": "0.1.0",
   "engines": {
     "vscode": "^1.84.0"
   },
@@ -28,6 +28,23 @@
         "scopeName": "source.sky-localization",
         "path": "./syntaxes/sky-localization.tmLanguage.json"
       }
+    ],
+    "configuration": [
+      {
+        "title": "Sky Tooling",
+        "properties": {
+          "skyTooling.localizationAlignValues": {
+            "type": "boolean",
+            "default": true,
+            "description": "Align values in localization files into the same column."
+          },
+          "skyTooling.localizationInlayHints": {
+            "type": "boolean",
+            "default": true,
+            "description": "Show inlay hints for localization files."
+          }
+        }
+      }
     ]
   },
   "scripts": {
@@ -36,7 +53,8 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "buildDistributable": "vsce package"
   },
   "devDependencies": {
     "@types/vscode": "^1.84.0",
