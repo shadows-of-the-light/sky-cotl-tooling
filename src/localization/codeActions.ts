@@ -1,34 +1,47 @@
 import * as vscode from 'vscode';
 
+function createQuickFix(
+    title: string,
+    diagnostics: vscode.Diagnostic[] = [],
+): vscode.CodeAction {
+    const action = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
+    action.diagnostics = diagnostics;
+    action.edit = new vscode.WorkspaceEdit();
+    return action;
+}
+
 export function startLocalizationCodeActionsProvider(context: vscode.ExtensionContext) {
     const localizationCodeActions = vscode.languages.registerCodeActionsProvider('sky-localization', {
         provideCodeActions(document, range, context, token) {
             const lines = document.getText().split('\n');
             const diagnostics = context.diagnostics.filter((diagnostic) => diagnostic.source === 'sky-localization');
-            const actions: (vscode.CodeAction | null)[] = diagnostics.map((diagnostic) => {
-                switch (diagnostic.code) {
-                    case 'sky-localization-first-line-comment':
-                        const action = new vscode.CodeAction('Add comment to first line', vscode.CodeActionKind.QuickFix);
-                        action.edit = new vscode.WorkspaceEdit();
-                        action.edit.insert(document.uri, new vscode.Position(0, 0), '/* Hey! ^^ */\n');
-                        action.diagnostics = [diagnostic];
-                        return action;
-                    case 'sky-localization-last-line-empty':
-                        const action2 = new vscode.CodeAction('Add empty line to last line', vscode.CodeActionKind.QuickFix);
-                        action2.edit = new vscode.WorkspaceEdit();
-                        action2.edit.insert(document.uri, new vscode.Position(lines.length - 1, lines[lines.length - 1].length), '\n');
-                        action2.diagnostics = [diagnostic];
-                        return action2;
-                    case 'sky-localization-line-not-string':
-                        // replace line with this: "key_name" = "Value";
-                        const action3 = new vscode.CodeAction('Fix line', vscode.CodeActionKind.QuickFix);
-                        action3.edit = new vscode.WorkspaceEdit();
-                        action3.edit.replace(document.uri, diagnostic.range, `"key_name" = "Value";`);
-                        action3.diagnostics = [diagnostic];
-                        return action3;
+            const actions: vscode.CodeAction[] = diagnostics.map((diagnostic) => {
+                if (diagnostic.code === 'sky-localization-first-line-comment') {
+                    const action = createQuickFix('Add comment to first line', [diagnostic]);
+                    action.edit?.insert(document.uri, new vscode.Position(0, 0), '/* Hey! ^^ */\n');
+                    return [action];
                 }
-                return null;
-            });
+                if (diagnostic.code === 'sky-localization-last-line-empty') {
+                    const action = createQuickFix('Add empty line to last line', [diagnostic]);
+                    action.edit?.insert(document.uri, new vscode.Position(lines.length - 1, lines[lines.length - 1].length), '\n');
+                    return [action];
+                }
+                if (diagnostic.code === 'sky-localization-line-not-string') {
+                    const actionNewString = createQuickFix('Insert new string', [diagnostic]);
+                    actionNewString.edit?.replace(document.uri, diagnostic.range, `"key_name" = "Value";`);
+                    const actionRemoveLine = createQuickFix('Remove line', [diagnostic]);
+                    actionRemoveLine.edit?.delete(document.uri, diagnostic.range);
+                    return [actionNewString];
+                }
+                if (diagnostic.code === 'sky-localization-key-with-spaces') {
+                    const action = createQuickFix('Replace spaces with underscore', [diagnostic]);
+                    const oldKey = lines[diagnostic.range.start.line].split('=')[0].trim();
+                    const newKey = oldKey.replace(' ', '_');
+                    action.edit?.replace(document.uri, diagnostic.range, newKey);
+                    return [action];
+                }
+                return [];
+            }).flat();
             return actions.filter((action) => action !== null) as vscode.CodeAction[];
         },
     });
