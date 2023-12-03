@@ -5,9 +5,23 @@ import { provideLocalizationDecorations } from './localization/decorationsProvid
 import { provideLocalizationHover } from './localization/hoverProvider';
 import { provideLocalizationCompletionItems } from './localization/completionItemsProvider';
 import { provideLocalizationDocumentSymbols } from './localization/documentSymbolsProvider';
+import skyWorkspace from './workspace/SkyWorkspace';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('Sky tooling extension is now active!');
+
+    context.subscriptions.push(
+        vscode.workspace.onDidChangeWorkspaceFolders(() => {
+            skyWorkspace.update(context);
+        }),
+        vscode.workspace.onDidSaveTextDocument(e => {
+            const isBaseFileChanged = e.fileName.includes('Base.lproj\\Localizable.strings');
+            if (isBaseFileChanged) {
+                skyWorkspace.update(context);
+            }
+        })
+    );
+    skyWorkspace.update(context);
 
     provideLocalizationCodeActions(context);
     provideLocalizationDecorations();
@@ -17,4 +31,4 @@ export function activate(context: vscode.ExtensionContext) {
     provideLocalizationCompletionItems(context);
 }
 
-export function deactivate() {}
+export function deactivate() { }

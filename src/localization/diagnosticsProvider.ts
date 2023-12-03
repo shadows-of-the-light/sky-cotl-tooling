@@ -52,6 +52,16 @@ export function provideLocalizationDiagnostics(context: vscode.ExtensionContext)
                 diagnostics.push(diagnostic);
             }
         });
+        // Duplicate keys
+        const keys = lines.map((line) => line.split('=')[0].trim());
+        const duplicateKeys = keys.filter((key, index) => keys.indexOf(key) !== index);
+        duplicateKeys.forEach((key) => {
+            const index = keys.indexOf(key);
+            const range = new vscode.Range(index, 0, index, lines[index].length);
+            const diagnostic = new vscode.Diagnostic(range, 'Duplicate key', vscode.DiagnosticSeverity.Warning);
+            diagnostic.code = 'sky-localization-duplicate-key';
+            diagnostics.push(diagnostic);
+        });
 
         diagnostics = diagnostics.map((diagnostic) => {
             diagnostic.source = 'sky-localization';

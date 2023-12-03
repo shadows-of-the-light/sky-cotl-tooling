@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import skyWorkspace from '../workspace/SkyWorkspace';
 
 export function provideLocalizationCompletionItems(context: vscode.ExtensionContext) {
     vscode.workspace.onDidChangeTextDocument(event => {
@@ -63,11 +64,13 @@ export function provideLocalizationCompletionItems(context: vscode.ExtensionCont
                     }
 
                     if (currentLine.text.trim() === '') {
-                        const comment = new vscode.CompletionItem('Comment', vscode.CompletionItemKind.Snippet);
-                        comment.insertText = new vscode.SnippetString('/* $0 */');
-                        const keyValue = new vscode.CompletionItem('String', vscode.CompletionItemKind.Snippet);
-                        keyValue.insertText = new vscode.SnippetString('"${1:string_key}" = "${2:Value}";$0');
-                        return [comment, keyValue];
+                        const keys = skyWorkspace.localizationKeys.sort();
+                        const items = keys.map(key => {
+                            const item = new vscode.CompletionItem(key, vscode.CompletionItemKind.Constant);
+                            item.insertText = new vscode.SnippetString(`"${key}" = "$0";`);
+                            return item;
+                        });
+                        return items;
                     }
 
                     const isInButton = currentLine.text.substring(0, position.character).endsWith('button type=\\"');

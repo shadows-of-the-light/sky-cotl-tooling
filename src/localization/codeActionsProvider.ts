@@ -25,7 +25,6 @@ export function provideLocalizationCodeActions(context: vscode.ExtensionContext)
                 }
                 if (diagnostic.code === 'sky-localization-line-not-string') {
                     const actionRemoveLine = createQuickFix('Remove line', [diagnostic]);
-                    // remove whole line and empty line after
                     actionRemoveLine.edit?.delete(document.uri, new vscode.Range(diagnostic.range.start.line, 0, diagnostic.range.start.line + 1, 0));
                     return [actionRemoveLine];
                 }
@@ -35,6 +34,11 @@ export function provideLocalizationCodeActions(context: vscode.ExtensionContext)
                     const newKey = oldKey.replace(' ', '_');
                     actionReplaceSpaceWithUnderscore.edit?.replace(document.uri, diagnostic.range, newKey);
                     return [actionReplaceSpaceWithUnderscore];
+                }
+                if (diagnostic.code === 'sky-localization-duplicate-key') {
+                    const actionRemoveLine = createQuickFix('Remove line', [diagnostic]);
+                    actionRemoveLine.edit?.delete(document.uri, new vscode.Range(diagnostic.range.start.line, 0, diagnostic.range.start.line + 1, 0));
+                    return [actionRemoveLine];
                 }
                 return [];
             }).flat();
