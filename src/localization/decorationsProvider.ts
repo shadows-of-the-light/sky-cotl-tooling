@@ -108,7 +108,7 @@ function updateDecorations(document: vscode.TextDocument) {
     }
 }
 
-export function startLocalizationDecorationsProvider() {
+export function provideLocalizationDecorations() {
     const activeEditor = vscode.window.activeTextEditor;
 
     activeEditor?.document.languageId === 'sky-localization' && updateDecorations(activeEditor.document);

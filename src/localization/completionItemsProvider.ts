@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-export function startLocalizationCompletionProvider(context: vscode.ExtensionContext) {
+export function provideLocalizationCompletionItems(context: vscode.ExtensionContext) {
     vscode.workspace.onDidChangeTextDocument(event => {
         const changes = event.contentChanges[0];
         if (['<', '{', '\n', '\r', '\r\n'].includes(changes.text)) {

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-export function startLocalizationDiagnosticsProvider(context: vscode.ExtensionContext) {
+export function provideLocalizationDiagnostics(context: vscode.ExtensionContext) {
     const localizationDiagnositcs = vscode.languages.createDiagnosticCollection('sky-localization');
     context.subscriptions.push(localizationDiagnositcs);
 
@@ -11,13 +11,6 @@ export function startLocalizationDiagnosticsProvider(context: vscode.ExtensionCo
         let diagnostics: vscode.Diagnostic[] = [];
 
         const lines = text.split('\n');
-        // First line must be a comment
-        if (!lines[0].match(`/\\*.*\\*/`)) {
-            const range = new vscode.Range(0, 0, 0, lines[0].length);
-            const diagnostic = new vscode.Diagnostic(range, 'First line must be a comment', vscode.DiagnosticSeverity.Error);
-            diagnostic.code = 'sky-localization-first-line-comment';
-            diagnostics.push(diagnostic);
-        }
         // Last line must be empty
         if (lines[lines.length - 1] !== '') {
             const range = new vscode.Range(lines.length - 1, 0, lines.length - 1, lines[lines.length - 1].length);
@@ -28,7 +21,7 @@ export function startLocalizationDiagnosticsProvider(context: vscode.ExtensionCo
         // Rules for all other lines
         for (let i = 1; i < lines.length - 1; i++) {
             const line = lines[i];
-            // All other lines must be a string
+            // Lines must be strings
             if (!line.match(`"[\\w\\d_]*" = ".*";`)) {
                 const range = new vscode.Range(i, 0, i, line.length);
                 const diagnostic = new vscode.Diagnostic(range, 'Only the last line should be empty. Line must be a string, formatted like this: "key_name" = "Value";', vscode.DiagnosticSeverity.Error);

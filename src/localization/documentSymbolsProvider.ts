@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-export function startLocalizationDocumentSymbolProvider(context: vscode.ExtensionContext) {
+export function provideLocalizationDocumentSymbols(context: vscode.ExtensionContext) {
     const localizationDocumentSymbolProvider = vscode.languages.registerDocumentSymbolProvider('sky-localization', {
         provideDocumentSymbols(document, token) {
             if (!document.fileName.endsWith('.strings')) { return []; }
