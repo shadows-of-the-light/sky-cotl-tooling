@@ -1,8 +1,8 @@
 {
   "name": "sky-cotl-tooling",
-  "displayName": "SkyTooling",
+  "displayName": "Sky Tooling",
   "description": "VSCode support for Sky: Children of the Light files",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "engines": {
     "vscode": "^1.84.0"
   },
@@ -14,6 +14,18 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "commands": [
+      {
+        "command": "skyTooling.startSkyOnSteam",
+        "title": "Start Sky on Steam",
+        "category": "Sky Tooling"
+      },
+      {
+        "command": "skyTooling.startSkyOnSteamDemo",
+        "title": "Start Sky Demo on Steam",
+        "category": "Sky Tooling"
+      }
+    ],
     "languages": [
       {
         "id": "sky-localization",

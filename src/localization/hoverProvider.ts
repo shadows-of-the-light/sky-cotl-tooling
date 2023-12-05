@@ -36,7 +36,7 @@ function getTagHover(line: string, position: vscode.Position): vscode.Hover | nu
     return null;
 }
 
-export function provideLocalizationHover(context: vscode.ExtensionContext) {
+export default function provideLocalizationHover(context: vscode.ExtensionContext) {
     const localizationHover = vscode.languages.registerHoverProvider('sky-localization', {
         provideHover(document, position, token) {
             const lineAtPos = document.lineAt(position);

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import skyWorkspace from '../workspace/SkyWorkspace';
 
-export function provideLocalizationCompletionItems(context: vscode.ExtensionContext) {
+export default function provideLocalizationCompletionItems(context: vscode.ExtensionContext) {
     vscode.workspace.onDidChangeTextDocument(event => {
         const changes = event.contentChanges[0];
         if (['<', '{', '\n', '\r', '\r\n'].includes(changes.text)) {

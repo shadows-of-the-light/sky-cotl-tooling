@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
+import { hideStatus, updateStatus } from '../status';
 
 type WorkspaceType = 'general' | 'localization';
 
 function loadLocalizationKeys(callback: (keys: string[]) => void) {
     const openedFolder = vscode.workspace.workspaceFolders?.[0];
-    if (skyWorkspace.getType() !== 'localization' || !openedFolder) {
+    if (skyWorkspace.type !== 'localization' || !openedFolder) {
         return [];
     }
 
@@ -29,7 +30,7 @@ export class SkyWorkspace {
         }
     }
 
-    update(context: vscode.ExtensionContext) {
+    update(context: vscode.ExtensionContext, isSilent: boolean = false) {
         const openedFolder = vscode.workspace.workspaceFolders?.[0];
         if (!openedFolder) {
             return;
@@ -40,13 +41,20 @@ export class SkyWorkspace {
                     return type === vscode.FileType.Directory && name.endsWith('.lproj');
                 }) ? 'localization' : 'general';
 
-                loadLocalizationKeys(keys => this.localizationKeys = keys );
+                if (this.type === 'general') {
+                    hideStatus();
+                }
+
+                loadLocalizationKeys(keys => {
+                    this.localizationKeys = keys;
+                    if (!isSilent) {
+                        vscode.window.showInformationMessage(`Sky language folder detected and found ${keys.length} strings.`);
+                    }
+                    const statusContent = new vscode.MarkdownString(`### Localization workspace\n\n\`${keys.length}\` strings found in the base language.\n\n---\n\n✨ key auto-completion active\n\n---\n\n✨ invalid key detection active`);
+                    updateStatus(undefined, statusContent);
+                });
 
             });
-    }
-
-    getType(): WorkspaceType {
-        return this.type;
     }
 }
 

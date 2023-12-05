@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
+import skyWorkspace from '../workspace/SkyWorkspace';
 
-export function provideLocalizationDiagnostics(context: vscode.ExtensionContext) {
+export default function provideLocalizationDiagnostics(context: vscode.ExtensionContext) {
     const localizationDiagnositcs = vscode.languages.createDiagnosticCollection('sky-localization');
     context.subscriptions.push(localizationDiagnositcs);
 
@@ -11,6 +12,10 @@ export function provideLocalizationDiagnostics(context: vscode.ExtensionContext)
         let diagnostics: vscode.Diagnostic[] = [];
 
         const lines = text.split('\n');
+        const keys = lines
+            .filter((line) => line.startsWith('"') && line.includes('='))
+            .map((line) => line.split('=')[0].trim().replace(/"/g, ''));
+
         // Last line must be empty
         if (lines[lines.length - 1] !== '') {
             const range = new vscode.Range(lines.length - 1, 0, lines.length - 1, lines[lines.length - 1].length);
@@ -53,7 +58,6 @@ export function provideLocalizationDiagnostics(context: vscode.ExtensionContext)
             }
         });
         // Duplicate keys
-        const keys = lines.map((line) => line.split('=')[0].trim());
         const duplicateKeys = keys.filter((key, index) => keys.indexOf(key) !== index);
         duplicateKeys.forEach((key) => {
             const index = keys.indexOf(key);
@@ -62,6 +66,17 @@ export function provideLocalizationDiagnostics(context: vscode.ExtensionContext)
             diagnostic.code = 'sky-localization-duplicate-key';
             diagnostics.push(diagnostic);
         });
+        // Invalid keys: when we're in a localization workspace, every key must be in the skyWorkspace.localizationKeys array
+        if (skyWorkspace.type === 'localization') {
+            keys.forEach((key, index) => {
+                if (!skyWorkspace.localizationKeys.includes(key)) {
+                    const range = new vscode.Range(index, 0, index, lines[index].length);
+                    const diagnostic = new vscode.Diagnostic(range, 'Invalid key. Key is not in the base language yet.', vscode.DiagnosticSeverity.Warning);
+                    diagnostic.code = 'sky-localization-invalid-key';
+                    diagnostics.push(diagnostic);
+                }
+            });
+        }
 
         diagnostics = diagnostics.map((diagnostic) => {
             diagnostic.source = 'sky-localization';

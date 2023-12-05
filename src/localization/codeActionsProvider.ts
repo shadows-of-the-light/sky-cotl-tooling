@@ -10,7 +10,7 @@ function createQuickFix(
     return action;
 }
 
-export function provideLocalizationCodeActions(context: vscode.ExtensionContext) {
+export default function provideLocalizationCodeActions(context: vscode.ExtensionContext) {
     const localizationCodeActions = vscode.languages.registerCodeActionsProvider('sky-localization', {
         provideCodeActions(document, range, context, token) {
             const lines = document.getText().split('\n');
