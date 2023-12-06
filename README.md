@@ -18,6 +18,12 @@ I'm a curious Sky player who loves all of your games. I'm also a programmer and 
   - Outline view for easier navigation
 - Start the game quickly from Visual Studio Code (only works if you have the game installed on Steam)
 
+### Planned features if thatgamecompany approves this extension
+
+- Warnings for missing translations
+- Customizable text decoration for formatting tags (for example making the text in `<1>these tags</1>` blue)
+- Customizable icons (for example telling the extension that there is a new icon in the game and it should be added to the completion list and which emoji to use for it in the inlay hints)
+
 ## Building the extension
 
 Requirements
