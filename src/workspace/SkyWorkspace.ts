@@ -50,7 +50,7 @@ export class SkyWorkspace {
                     if (!isSilent) {
                         vscode.window.showInformationMessage(`Sky language folder detected and found ${keys.length} strings.`);
                     }
-                    const statusContent = new vscode.MarkdownString(`### Localization workspace\n\n\`${keys.length}\` strings found in the base language.\n\n---\n\n✨ key auto-completion active\n\n---\n\n✨ invalid key detection active`);
+                    const statusContent = new vscode.MarkdownString(`### Sky Tooling: localization workspace\n\n\`${keys.length}\` strings found in the base language.\n\n---\n\n✨ key auto-completion active\n\n---\n\n✨ invalid key detection active`);
                     updateStatus(undefined, statusContent);
                 });
 
