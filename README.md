@@ -18,6 +18,16 @@ I'm a curious Sky player who loves all of your games. I'm also a programmer and 
   - Outline view for easier navigation
 - Start the game quickly from Visual Studio Code (only works if you have the game installed on Steam)
 
+## What people CAN'T do with this extension
+
+The extension does not give you any advantage over other players. It can not do any of the following:
+
+- Mod the game
+- Open or edit binary / unreadable files
+- Cheat or hack the game
+- Decrypt or encrypt files
+- Decompile or deobfuscate the game
+
 ### Planned features if thatgamecompany approves this extension
 
 - Warnings for missing translations
