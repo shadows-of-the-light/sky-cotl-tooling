@@ -20,14 +20,54 @@ function loadLocalizationKeys(callback: (keys: string[]) => void) {
         });
 }
 
+class Language {
+    name: string;
+    strings: { key: string, value: string }[] = [];
+
+    constructor(name: string) {
+        this.name = name;
+    }
+}
+
 export class SkyWorkspace {
     type: WorkspaceType = 'general';
     localizationKeys: string[] = [];
+    database: Language[] = [];
 
     constructor(context: vscode.ExtensionContext | undefined = undefined) {
         if (context) {
             this.update(context);
         }
+    }
+
+    updateDatabase() {
+        const openedFolder = vscode.workspace.workspaceFolders?.[0];
+        if (skyWorkspace.type !== 'localization' || !openedFolder) {
+            return [];
+        }
+
+        vscode.workspace.fs.readDirectory(openedFolder.uri)
+            .then((files) => {
+                this.database = files
+                    .filter(([name, type]) => type === vscode.FileType.Directory && name.endsWith('.lproj'))
+                    .map(([name, type]) => new Language(name.slice(0, -6)));
+                
+                this.database.forEach((language) => {
+                    vscode.workspace.fs.readFile(vscode.Uri.file(openedFolder.uri.fsPath + '/' + language.name + '.lproj/Localizable.strings'))
+                        .then((contents) => {
+                            const lines = contents
+                                .toString()
+                                .split('\n')
+                                .filter((line) => line.startsWith('"') && line.includes('='));
+                            const strings = lines.map((line) => {
+                                const key = line.split('=')[0].trim().slice(1, -1);
+                                const value = line.split('=')[1].trim().slice(1, -2);
+                                return { key, value };
+                            });
+                            language.strings = strings;
+                        });
+                });
+            });
     }
 
     update(context: vscode.ExtensionContext, isSilent: boolean = false) {
@@ -37,12 +77,18 @@ export class SkyWorkspace {
         }
         vscode.workspace.fs.readDirectory(openedFolder.uri)
             .then((files) => {
-                this.type = files.every(([name, type]) => {
-                    return type === vscode.FileType.Directory && name.endsWith('.lproj');
-                }) ? 'localization' : 'general';
+                this.type = files
+                    .filter(([name, type]) => type === vscode.FileType.Directory)
+                    .every(([name, type]) => {
+                        return name.endsWith('.lproj');
+                    }) ? 'localization' : 'general';
 
                 if (this.type === 'general') {
                     hideStatus();
+                }
+
+                if (this.type === 'localization') {
+                    this.updateDatabase();
                 }
 
                 loadLocalizationKeys(keys => {
@@ -50,7 +96,13 @@ export class SkyWorkspace {
                     if (!isSilent) {
                         vscode.window.showInformationMessage(`Sky language folder detected and found ${keys.length} strings.`);
                     }
-                    const statusContent = new vscode.MarkdownString(`### Sky Tooling: localization workspace\n\n\`${keys.length}\` strings found in the base language.\n\n---\n\n✨ key auto-completion active\n\n---\n\n✨ invalid key detection active`);
+                    const statusContent = new vscode.MarkdownString(
+                        `### Sky Tooling: localization workspace\n\n${this.database.length} languages.\n\n` +
+                        `\`${keys.length}\` strings found in the base language.\n\n---\n\n` +
+                        `✨ key auto-completion active\n\n---\n\n` +
+                        `✨ invalid key detection active\n\n---\n\n` +
+                        `✨ hover to see all translations active`
+                    );
                     updateStatus(undefined, statusContent);
                 });
 

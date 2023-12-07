@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import skyWorkspace from '../workspace/SkyWorkspace';
 
 function getTagHover(line: string, position: vscode.Position): vscode.Hover | null {
     const tagStart = line.substring(0, position.character).lastIndexOf('<');
@@ -41,6 +42,7 @@ export default function provideLocalizationHover(context: vscode.ExtensionContex
         provideHover(document, position, token) {
             const lineAtPos = document.lineAt(position);
 
+            // New line
             if (
                 lineAtPos.text.substring(position.character, position.character + 2) === '\\n' ||
                 lineAtPos.text.substring(position.character - 1, position.character + 1) === '\\n' ||
@@ -49,8 +51,26 @@ export default function provideLocalizationHover(context: vscode.ExtensionContex
                 return new vscode.Hover('"\\n" New line');
             }
 
+            // Tag
             const tagHover = getTagHover(lineAtPos.text, position);
             if (tagHover) { return tagHover; }
+
+            // Key usage
+            if (skyWorkspace.type === 'localization' && position.character < lineAtPos.text.indexOf('=')) {
+                const key = lineAtPos.text.split('=')[0].trim().slice(1, -1);
+                const strings = skyWorkspace.database
+                    .map((language) => {
+                        return {
+                            language: language,
+                            value: language.strings.find((string) => string.key === key)
+                        };
+                    })
+                    .filter((string) => string);
+                if (strings.length > 0) {
+                    const message = strings.map((string) => `**${string.language.name}:** ${string.value?.value}`).join('\n\n---\n\n');
+                    return new vscode.Hover(message);
+                }
+            }
 
             return null;
         },
