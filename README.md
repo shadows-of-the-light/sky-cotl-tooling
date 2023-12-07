@@ -43,7 +43,7 @@ Requirements
 - [Node.js](https://nodejs.org/en/)
 - VSCode extension CLI manager: `npm install -g @vscode/vsce`
 
-To build the extension, clone the repository and run the `compile` and `buildDistributable` npm scripts or run the following command in the root directory of the repository:
+To build the extension, clone the repository and run the `compile` and `buildDistributable` npm scripts or run the following commands in the root directory of the repository:
 
 ```
 tsc -p ./
@@ -56,7 +56,7 @@ After building the extension, you can install it by opening the Extensions view 
 
 ## Usage
 
-Open any folder which contains Sky localization files. The extension will automatically activate and provide the features listed above. For the best experience and to enable all features, you should open Sky's languages folder: `Sky Children of the Light (Demo)\data\Strings`. If you opened the right folder, you will see a small cloud ⛅ icon in the bottom left corner of the VSCode window. Hovering over it will show you the extra features which are enabled only in this folder.
+Open any folder which contains Sky localization files. The extension will automatically activate and provide the features listed above. For the best experience and to enable all features, you should open Sky's languages folder: `Sky Children of the Light (Demo)\data\Strings`. If you opened the right folder, you will see a small cloud ⛅ icon in the bottom right corner of the VSCode window. Hovering over it will show you the extra features which are enabled only in this folder.
 
 ### Customization
 
