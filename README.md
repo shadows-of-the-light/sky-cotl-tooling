@@ -20,7 +20,7 @@ I'm a curious Sky player who loves all of your games. I'm also a programmer and 
 
 ## What people CAN'T do with this extension
 
-The extension does not give you any advantage over other players. It can not do any of the following:
+The extension does not give you any advantage over other players. It **can not** do any of the following:
 
 - Mod the game
 - Open or edit binary / unreadable files
