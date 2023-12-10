@@ -28,11 +28,11 @@ The extension does not give you any advantage over other players. It **can not**
 - Decrypt or encrypt files
 - Decompile or deobfuscate the game
 
-### Planned features if thatgamecompany approves this extension
+### Planned features
 
-- Warnings for missing translations
-- Customizable text decoration for formatting tags (for example making the text in `<1>these tags</1>` blue)
-- Customizable icons (for example telling the extension that there is a new icon in the game and it should be added to the completion list and which emoji to use for it in the inlay hints)
+- [ ] Warnings for missing translations (WIP)
+- [ ] Customizable text decoration for formatting tags (for example making the text in `<1>these tags</1>` blue)
+- [ ] Customizable icons (for example telling the extension that there is a new icon in the game and it should be added to the completion list and which emoji to use for it in the inlay hints)
 
 ## Building the extension
 

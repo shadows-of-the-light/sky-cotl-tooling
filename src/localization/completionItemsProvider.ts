@@ -64,7 +64,7 @@ export default function provideLocalizationCompletionItems(context: vscode.Exten
                     }
 
                     if (currentLine.text.trim() === '') {
-                        const keys = skyWorkspace.localizationKeys.sort();
+                        const keys = skyWorkspace.database.find((language) => language.name === 'Base')?.strings.map((string) => string.key).sort() ?? [];
                         const items = keys.map(key => {
                             const item = new vscode.CompletionItem(key, vscode.CompletionItemKind.Constant);
                             item.insertText = new vscode.SnippetString(`"${key}" = "$0";`);

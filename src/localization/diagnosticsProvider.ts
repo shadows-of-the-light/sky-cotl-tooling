@@ -66,10 +66,12 @@ export default function provideLocalizationDiagnostics(context: vscode.Extension
             diagnostic.code = 'sky-localization-duplicate-key';
             diagnostics.push(diagnostic);
         });
-        // Invalid keys: when we're in a localization workspace, every key must be in the skyWorkspace.localizationKeys array
+        // Localization workspace specific rules
         if (skyWorkspace.type === 'localization') {
+            // Invalid keys
+            const baseKeys = skyWorkspace.database.find((language) => language.name === 'Base')?.strings.map((string) => string.key) ?? [];
             keys.forEach((key, index) => {
-                if (!skyWorkspace.localizationKeys.includes(key)) {
+                if (!baseKeys.includes(key)) {
                     const range = new vscode.Range(index, 0, index, lines[index].length);
                     const diagnostic = new vscode.Diagnostic(range, 'Invalid key. Key is not in the base language yet.', vscode.DiagnosticSeverity.Warning);
                     diagnostic.code = 'sky-localization-invalid-key';

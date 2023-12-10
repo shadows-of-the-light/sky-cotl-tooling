@@ -31,7 +31,6 @@ class Language {
 
 export class SkyWorkspace {
     type: WorkspaceType = 'general';
-    localizationKeys: string[] = [];
     database: Language[] = [];
 
     constructor(context: vscode.ExtensionContext | undefined = undefined) {
@@ -40,7 +39,7 @@ export class SkyWorkspace {
         }
     }
 
-    updateDatabase() {
+    updateDatabase(baseCallback: () => void = () => {}) {
         const openedFolder = vscode.workspace.workspaceFolders?.[0];
         if (skyWorkspace.type !== 'localization' || !openedFolder) {
             return [];
@@ -65,6 +64,9 @@ export class SkyWorkspace {
                                 return { key, value };
                             });
                             language.strings = strings;
+                            if (language.name === 'Base') {
+                                baseCallback();
+                            }
                         });
                 });
             });
@@ -88,23 +90,21 @@ export class SkyWorkspace {
                 }
 
                 if (this.type === 'localization') {
-                    this.updateDatabase();
+                    this.updateDatabase(() => {
+                        const keys = this.database.find((language) => language.name === 'Base')?.strings.map((string) => string.key) ?? [];
+                        if (!isSilent) {
+                            vscode.window.showInformationMessage(`Sky language folder detected and found ${keys.length} strings.`);
+                        }
+                        const statusContent = new vscode.MarkdownString(
+                            `### Sky Tooling: localization workspace\n\n${this.database.length} languages.\n\n` +
+                            `\`${keys.length}\` strings found in the base language.\n\n---\n\n` +
+                            `✨ key auto-completion active\n\n---\n\n` +
+                            `✨ invalid key detection active\n\n---\n\n` +
+                            `✨ hover to see all translations active`
+                        );
+                        updateStatus(undefined, statusContent);
+                    });
                 }
-
-                loadLocalizationKeys(keys => {
-                    this.localizationKeys = keys;
-                    if (!isSilent) {
-                        vscode.window.showInformationMessage(`Sky language folder detected and found ${keys.length} strings.`);
-                    }
-                    const statusContent = new vscode.MarkdownString(
-                        `### Sky Tooling: localization workspace\n\n${this.database.length} languages.\n\n` +
-                        `\`${keys.length}\` strings found in the base language.\n\n---\n\n` +
-                        `✨ key auto-completion active\n\n---\n\n` +
-                        `✨ invalid key detection active\n\n---\n\n` +
-                        `✨ hover to see all translations active`
-                    );
-                    updateStatus(undefined, statusContent);
-                });
 
             });
     }
