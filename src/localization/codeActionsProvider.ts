@@ -40,6 +40,17 @@ export default function provideLocalizationCodeActions(context: vscode.Extension
                     actionRemoveLine.edit?.delete(document.uri, new vscode.Range(diagnostic.range.start.line, 0, diagnostic.range.start.line + 1, 0));
                     return [actionRemoveLine];
                 }
+                if (diagnostic.code === 'sky-localization-invalid-key') {
+                    const actionRemoveLine = createQuickFix('Remove line', [diagnostic]);
+                    actionRemoveLine.edit?.delete(document.uri, new vscode.Range(diagnostic.range.start.line, 0, diagnostic.range.start.line + 1, 0));
+                    return [actionRemoveLine];
+                }
+                if (diagnostic.code === 'sky-localization-missing-translation') {
+                    const key = diagnostic.message.split('"')[1];
+                    const actionAddTranslation = createQuickFix(`Add translation for "${key}"`, [diagnostic]);
+                    actionAddTranslation.edit?.insert(document.uri, new vscode.Position(diagnostic.range.start.line, diagnostic.range.start.character), `"${key}" = "LOCALIZE ME";`);
+                    return [actionAddTranslation];
+                }
                 return [];
             }).flat();
             return actions.filter((action) => action !== null) as vscode.CodeAction[];

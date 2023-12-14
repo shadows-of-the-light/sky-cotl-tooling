@@ -16,6 +16,11 @@ I'm a curious Sky player who loves all of your games. I'm also a programmer and 
   - Inlay hints (new line, some icons, etc.)
   - Text alignment for easier language editing
   - Outline view for easier navigation
+  - Extra features when editing in the localization folder
+    - Autocomplete keys from the base language
+    - Errors for invalid keys (keys that are not in the base language)
+    - Showing all translations on hover
+    - Warnings for missing translations
 - Start the game quickly from Visual Studio Code (only works if you have the game installed on Steam)
 
 ## What people CAN'T do with this extension
@@ -30,7 +35,6 @@ The extension does not give you any advantage over other players. It **can not**
 
 ### Planned features
 
-- [ ] Warnings for missing translations (WIP)
 - [ ] Customizable text decoration for formatting tags (for example making the text in `<1>these tags</1>` blue)
 - [ ] Customizable icons (for example telling the extension that there is a new icon in the game and it should be added to the completion list and which emoji to use for it in the inlay hints)
 
@@ -56,7 +60,7 @@ After building the extension, you can install it by opening the Extensions view 
 
 ## Usage
 
-Open any folder which contains Sky localization files. The extension will automatically activate and provide the features listed above. For the best experience and to enable all features, you should open Sky's languages folder: `Sky Children of the Light (Demo)\data\Strings`. If you opened the right folder, you will see a small cloud ⛅ icon in the bottom right corner of the VSCode window. Hovering over it will show you the extra features which are enabled only in this folder.
+Open any folder which contains Sky localization files. The extension will automatically activate and provide the features listed above. For the best experience and to enable all features, you should open Sky's languages folder: `Sky Children of the Light (Demo)\data\Strings`. If you opened the right folder, you will see a small cloud ⛅ icon in the bottom right corner of the VSCode window.
 
 ### Customization
 

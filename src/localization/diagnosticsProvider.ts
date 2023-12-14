@@ -60,10 +60,11 @@ export default function provideLocalizationDiagnostics(context: vscode.Extension
         // Duplicate keys
         const duplicateKeys = keys.filter((key, index) => keys.indexOf(key) !== index);
         duplicateKeys.forEach((key) => {
-            const index = keys.indexOf(key);
+            const index = keys.indexOf(key) + 1;
             const range = new vscode.Range(index, 0, index, lines[index].length);
             const diagnostic = new vscode.Diagnostic(range, 'Duplicate key', vscode.DiagnosticSeverity.Warning);
             diagnostic.code = 'sky-localization-duplicate-key';
+            diagnostic.tags = [vscode.DiagnosticTag.Unnecessary];
             diagnostics.push(diagnostic);
         });
         // Localization workspace specific rules
@@ -77,6 +78,15 @@ export default function provideLocalizationDiagnostics(context: vscode.Extension
                     diagnostic.code = 'sky-localization-invalid-key';
                     diagnostics.push(diagnostic);
                 }
+            });
+            // Missing translations
+            const missingKeys = skyWorkspace.getCommonKeys().filter((key) => !keys.includes(key));
+            missingKeys.forEach((key) => {
+                const index = lines.length - 1;
+                const range = new vscode.Range(index, 0, index, lines[index].length);
+                const diagnostic = new vscode.Diagnostic(range, `Missing translation for key "${key}"`, vscode.DiagnosticSeverity.Warning);
+                diagnostic.code = 'sky-localization-missing-translation';
+                diagnostics.push(diagnostic);
             });
         }
 

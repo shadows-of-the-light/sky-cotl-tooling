@@ -39,7 +39,18 @@ export class SkyWorkspace {
         }
     }
 
-    updateDatabase(baseCallback: () => void = () => {}) {
+    getBaseKeys() {
+        return this.database.find((language) => language.name === 'Base')?.strings.map((string) => string.key) ?? [];
+    }
+
+    getCommonKeys() {
+        return this.database
+            .filter((language) => language.name !== 'Base')
+            .map((language) => language.strings.map((string) => string.key))
+            .reduce((prev, curr) => prev.filter((key) => curr.includes(key)));
+    }
+
+    updateDatabase(baseCallback: () => void = () => { }) {
         const openedFolder = vscode.workspace.workspaceFolders?.[0];
         if (skyWorkspace.type !== 'localization' || !openedFolder) {
             return [];
@@ -50,7 +61,7 @@ export class SkyWorkspace {
                 this.database = files
                     .filter(([name, type]) => type === vscode.FileType.Directory && name.endsWith('.lproj'))
                     .map(([name, type]) => new Language(name.slice(0, -6)));
-                
+
                 this.database.forEach((language) => {
                     vscode.workspace.fs.readFile(vscode.Uri.file(openedFolder.uri.fsPath + '/' + language.name + '.lproj/Localizable.strings'))
                         .then((contents) => {
@@ -91,16 +102,13 @@ export class SkyWorkspace {
 
                 if (this.type === 'localization') {
                     this.updateDatabase(() => {
-                        const keys = this.database.find((language) => language.name === 'Base')?.strings.map((string) => string.key) ?? [];
                         if (!isSilent) {
-                            vscode.window.showInformationMessage(`Sky language folder detected and found ${keys.length} strings.`);
+                            vscode.window.showInformationMessage(`Sky localization folder detected`);
                         }
                         const statusContent = new vscode.MarkdownString(
                             `### Sky Tooling: localization workspace\n\n${this.database.length} languages.\n\n` +
-                            `\`${keys.length}\` strings found in the base language.\n\n---\n\n` +
-                            `✨ key auto-completion active\n\n---\n\n` +
-                            `✨ invalid key detection active\n\n---\n\n` +
-                            `✨ hover to see all translations active`
+                            `\`${this.getBaseKeys().length}\` strings found in the base language.\n\n---\n\n` +
+                            `✨ extra features active`
                         );
                         updateStatus(undefined, statusContent);
                     });
