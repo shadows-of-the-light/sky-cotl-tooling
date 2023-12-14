@@ -39,11 +39,11 @@ export class SkyWorkspace {
         }
     }
 
-    getBaseKeys() {
+    getBaseKeys(): string[] {
         return this.database.find((language) => language.name === 'Base')?.strings.map((string) => string.key) ?? [];
     }
 
-    getCommonKeys() {
+    getCommonKeys(): string[] {
         return this.database
             .filter((language) => language.name !== 'Base')
             .map((language) => language.strings.map((string) => string.key))
