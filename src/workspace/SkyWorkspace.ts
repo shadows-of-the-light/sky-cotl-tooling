@@ -50,37 +50,82 @@ export class SkyWorkspace {
             .reduce((prev, curr) => prev.filter((key) => curr.includes(key)));
     }
 
-    updateDatabase(baseCallback: () => void = () => { }) {
+    async updateDatabase(baseCallback: () => void = () => { }) {
         const openedFolder = vscode.workspace.workspaceFolders?.[0];
         if (skyWorkspace.type !== 'localization' || !openedFolder) {
             return [];
         }
 
-        vscode.workspace.fs.readDirectory(openedFolder.uri)
-            .then((files) => {
-                this.database = files
-                    .filter(([name, type]) => type === vscode.FileType.Directory && name.endsWith('.lproj'))
-                    .map(([name, type]) => new Language(name.slice(0, -6)));
+        const files = await vscode.workspace.fs.readDirectory(openedFolder.uri);
+        console.log('files: ', files);
 
-                this.database.forEach((language) => {
-                    vscode.workspace.fs.readFile(vscode.Uri.file(openedFolder.uri.fsPath + '/' + language.name + '.lproj/Localizable.strings'))
-                        .then((contents) => {
-                            const lines = contents
-                                .toString()
-                                .split('\n')
-                                .filter((line) => line.startsWith('"') && line.includes('='));
-                            const strings = lines.map((line) => {
-                                const key = line.split('=')[0].trim().slice(1, -1);
-                                const value = line.split('=')[1].trim().slice(1, -2);
-                                return { key, value };
-                            });
-                            language.strings = strings;
-                            if (language.name === 'Base') {
-                                baseCallback();
-                            }
+        if (files.map(([name, type]) => name).includes('Base.lproj')) {
+            console.log("Translations detected in Sky's folder");
+            /**
+             * workspace
+             * - Base.lproj
+             *   - Localizable.strings
+             * - de.lproj
+             *   - Localizable.strings
+             * - ...
+             */
+            this.database = files
+                .filter(([name, type]) => type === vscode.FileType.Directory && name.endsWith('.lproj'))
+                .map(([name, type]) => new Language(name.slice(0, -6)));
+
+            this.database.forEach((language) => {
+                vscode.workspace.fs.readFile(vscode.Uri.file(openedFolder.uri.fsPath + '/' + language.name + '.lproj/Localizable.strings'))
+                    .then((contents) => {
+                        const lines = contents
+                            .toString()
+                            .split('\n')
+                            .filter((line) => line.startsWith('"') && line.includes('='));
+                        const strings = lines.map((line) => {
+                            const key = line.split('=')[0].trim().slice(1, -1);
+                            const value = line.split('=')[1].trim().slice(1, -2);
+                            return { key, value };
                         });
-                });
+                        language.strings = strings;
+                        if (language.name === 'Base') {
+                            baseCallback();
+                        }
+                    });
             });
+        } else if (files.map(([name, type]) => name).includes('translations')) {
+            console.log("Translations detected in Hungatian translation project folder");
+            /**
+             * workspace
+             * - translations
+             *   - <build number>
+             *     - original.strings (english)
+             *     - Localizable.strings (hungarian)
+             */
+            const translations = await vscode.workspace.fs.readDirectory(vscode.Uri.file(openedFolder.uri.fsPath + '/translations'));
+            const latestBuild = await vscode.workspace.fs.readDirectory(vscode.Uri.file(openedFolder.uri.fsPath + '/translations/' + translations[translations.length - 1][0]));
+            this.database = latestBuild
+                .filter(([name, type]) => type === vscode.FileType.File && name.endsWith('.strings'))
+                .map(([name, type]) => new Language(name === 'original.strings' ? 'Base' : 'Hungarian'));
+
+            this.database.forEach((language) => {
+                vscode.workspace.fs.readFile(vscode.Uri.file(openedFolder.uri.fsPath + '/translations/' + translations[translations.length - 1][0] + '/' + (language.name === 'Base' ? 'original' : 'Localizable') + '.strings'))
+                    .then((contents) => {
+                        const lines = contents
+                            .toString()
+                            .split('\n')
+                            .filter((line) => line.startsWith('"') && line.includes('='));
+                        const strings = lines.map((line) => {
+                            const key = line.split('=')[0].trim().slice(1, -1);
+                            const value = line.split('=')[1].trim().slice(1, -2);
+                            return { key, value };
+                        });
+                        language.strings = strings;
+                        if (language.name === 'Base') {
+                            baseCallback();
+                        }
+                    });
+            }
+            );
+        }
     }
 
     update(context: vscode.ExtensionContext, isSilent: boolean = false) {
@@ -90,11 +135,14 @@ export class SkyWorkspace {
         }
         vscode.workspace.fs.readDirectory(openedFolder.uri)
             .then((files) => {
-                this.type = files
+                const isStringsFolder = files
                     .filter(([name, type]) => type === vscode.FileType.Directory)
-                    .every(([name, type]) => {
+                    .some(([name, type]) => {
                         return name.endsWith('.lproj');
-                    }) ? 'localization' : 'general';
+                    });
+                const isHungarianTranslationProjectFolder = files.some(([name, type]) => name === 'translations' && type === vscode.FileType.Directory);
+
+                this.type = isStringsFolder || isHungarianTranslationProjectFolder ? 'localization' : 'general';
 
                 if (this.type === 'general') {
                     hideStatus();
@@ -103,7 +151,7 @@ export class SkyWorkspace {
                 if (this.type === 'localization') {
                     this.updateDatabase(() => {
                         if (!isSilent) {
-                            vscode.window.showInformationMessage(`Sky localization folder detected`);
+                            vscode.window.showInformationMessage(`Sky localization files detected`);
                         }
                         const statusContent = new vscode.MarkdownString(
                             `### Sky Tooling: localization workspace\n\n${this.database.length} languages.\n\n` +
